@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コンサートカレンダー</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .calendar th, .calendar td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            vertical-align: top;
+            height: 100px;
+        }
+        .calendar th {
+            background-color: #f5f5f5;
+        }
+        .calendar td:hover {
+            background-color: #f0f0f0;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .navigation a {
+            text-decoration: none;
+            color: #333;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .navigation a:hover {
+            background-color: #f0f0f0;
+        }
+        .current-month {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .concert-item {
+            font-size: 0.8em;
+            margin: 2px 0;
+            padding: 2px;
+            background-color: #e3f2fd;
+            border-radius: 3px;
+        }
+        .concert-item a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+        .concert-item a:hover {
+            text-decoration: underline;
+        }
+        .date-number {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .search-form {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .search-form input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .search-form button {
+            padding: 8px 15px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .search-form button:hover {
+            background-color: #1565c0;
+        }
+        .add-concert-link {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 8px 15px;
+            background-color: #4caf50;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+        .add-concert-link:hover {
+            background-color: #388e3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-form">
+        <form action="/" method="GET">
+            <input type="text" name="search" placeholder="コンサート名、アーティスト、会場で検索" value="{{ search or '' }}">
+            <button type="submit">検索</button>
+            <a href="/add_concert" class="add-concert-link">コンサートを追加</a>
+        </form>
+    </div>
+
+    <div class="navigation">
+        <a href="/?year={{ prev_year }}&month={{ prev_month }}{% if search %}&search={{ search }}{% endif %}">前月</a>
+        <span class="current-month">{{ year }}年{{ month_name }}</span>
+        <a href="/?year={{ next_year }}&month={{ next_month }}{% if search %}&search={{ search }}{% endif %}">次月</a>
+    </div>
+    
+    <table class="calendar">
+        <thead>
+            <tr>
+                <th>月</th>
+                <th>火</th>
+                <th>水</th>
+                <th>木</th>
+                <th>金</th>
+                <th>土</th>
+                <th>日</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for week in calendar %}
+            <tr>
+                {% for day in week %}
+                    <td>
+                        {% if day != 0 %}
+                            <div class="date-number">{{ day }}</div>
+                            {% if day in concert_dates %}
+                                {% for concert in concert_dates[day] %}
+                                    <div class="concert-item">
+                                        <a href="/concert/{{ concert.id }}">
+                                            {{ concert.title }}<br>
+                                            {{ concert.artist }}
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html> 
