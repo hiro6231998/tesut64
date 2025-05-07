@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta
-from fastapi import FastAPI, Request, Form, HTTPException, Depends
+from fastapi import FastAPI, Request, Form, HTTPException, Depends, status
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import sessionmaker, Session
-from models import engine, Concert, Ticket
+from models import engine, Concert, Ticket, User
+from passlib.context import CryptContext
+from jose import JWTError, jwt
 import calendar
 
 app = FastAPI()
@@ -18,6 +21,16 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # データベースセッション
 SessionLocal = sessionmaker(bind=engine)
 
+# パスワードハッシュ化の設定
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# JWTの設定
+SECRET_KEY = "your-secret-key"  # 本番環境では環境変数から取得
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 def get_db():
     db = SessionLocal()
     try:
@@ -25,8 +38,82 @@ def get_db():
     finally:
         db.close()
 
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="認証に失敗しました",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    user = db.query(User).filter(User.username == username).first()
+    if user is None:
+        raise credentials_exception
+    return user
+
+@app.post("/token")
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="ユーザー名またはパスワードが間違っています",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_access_token(data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.post("/register")
+async def register(
+    username: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    # ユーザー名とメールアドレスの重複チェック
+    if db.query(User).filter(User.username == username).first():
+        raise HTTPException(status_code=400, detail="このユーザー名は既に使用されています")
+    if db.query(User).filter(User.email == email).first():
+        raise HTTPException(status_code=400, detail="このメールアドレスは既に使用されています")
+    
+    # ユーザーの作成
+    hashed_password = get_password_hash(password)
+    user = User(username=username, email=email, hashed_password=hashed_password)
+    db.add(user)
+    db.commit()
+    
+    return RedirectResponse(url="/login", status_code=303)
+
 @app.get("/", response_class=HTMLResponse)
-async def calendar_view(request: Request, year: int = None, month: int = None, search: str = None):
+async def calendar_view(
+    request: Request,
+    year: int = None,
+    month: int = None,
+    search: str = None,
+    current_user: User = Depends(get_current_user)
+):
     db = SessionLocal()
     now = datetime.now()
     year = year or now.year
@@ -84,26 +171,35 @@ async def calendar_view(request: Request, year: int = None, month: int = None, s
             "next_year": next_year,
             "next_month": next_month,
             "concert_dates": concert_dates,
-            "search": search
+            "search": search,
+            "current_user": current_user
         }
     )
 
 @app.get("/concert/{concert_id}")
-async def concert_detail(request: Request, concert_id: int):
+async def concert_detail(
+    request: Request,
+    concert_id: int,
+    current_user: User = Depends(get_current_user)
+):
     db = SessionLocal()
     concert = db.query(Concert).filter(Concert.id == concert_id).first()
     if not concert:
         raise HTTPException(status_code=404, detail="コンサートが見つかりません")
     
     # 予約履歴を取得
-    tickets = db.query(Ticket).filter(Ticket.concert_id == concert_id).all()
+    tickets = db.query(Ticket).filter(
+        Ticket.concert_id == concert_id,
+        Ticket.user_id == current_user.id
+    ).all()
     
     return templates.TemplateResponse(
         "concert_detail.html",
         {
             "request": request,
             "concert": concert,
-            "tickets": tickets
+            "tickets": tickets,
+            "current_user": current_user
         }
     )
 
@@ -111,9 +207,8 @@ async def concert_detail(request: Request, concert_id: int):
 async def book_ticket(
     request: Request,
     concert_id: int,
-    user_name: str = Form(...),
-    email: str = Form(...),
-    quantity: int = Form(...)
+    quantity: int = Form(...),
+    current_user: User = Depends(get_current_user)
 ):
     db = SessionLocal()
     concert = db.query(Concert).filter(Concert.id == concert_id).first()
@@ -126,11 +221,9 @@ async def book_ticket(
     total_price = concert.price * quantity
     ticket = Ticket(
         concert_id=concert_id,
-        user_name=user_name,
-        email=email,
+        user_id=current_user.id,
         quantity=quantity,
-        total_price=total_price,
-        purchase_date=datetime.now()
+        total_price=total_price
     )
     
     concert.available_seats -= quantity
