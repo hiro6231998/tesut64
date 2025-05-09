@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ concert.title }} - コンサート詳細</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .concert-details {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .concert-title {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: #1976d2;
+        }
+        .concert-info {
+            margin-bottom: 5px;
+        }
+        .booking-form {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        button {
+            background-color: #1976d2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #666;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .price-info {
+            font-size: 1.2em;
+            color: #2e7d32;
+            margin: 10px 0;
+        }
+        .seats-info {
+            color: #d32f2f;
+            margin: 10px 0;
+        }
+        .booking-history {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .booking-history h2 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .booking-list {
+            list-style: none;
+            padding: 0;
+        }
+        .booking-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .booking-item:last-child {
+            border-bottom: none;
+        }
+        .booking-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .booking-name {
+            font-weight: bold;
+        }
+        .booking-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .booking-quantity {
+            color: #2e7d32;
+        }
+        .booking-price {
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← カレンダーに戻る</a>
+    
+    <div class="concert-details">
+        <h1 class="concert-title">{{ concert.title }}</h1>
+        <div class="concert-info">アーティスト: {{ concert.artist }}</div>
+        <div class="concert-info">日時: {{ concert.date.strftime('%Y年%m月%d日 %H:%M') }}</div>
+        <div class="concert-info">会場: {{ concert.venue }}</div>
+        <div class="price-info">チケット価格: ¥{{ "{:,}".format(concert.price) }}</div>
+        <div class="seats-info">残席数: {{ concert.available_seats }}席</div>
+        {% if concert.description %}
+            <div class="concert-info">{{ concert.description }}</div>
+        {% endif %}
+    </div>
+
+    {% if concert.available_seats > 0 %}
+        <div class="booking-form">
+            <h2>チケット予約</h2>
+            <form action="/book_ticket/{{ concert.id }}" method="POST">
+                <div class="form-group">
+                    <label for="user_name">お名前</label>
+                    <input type="text" id="user_name" name="user_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">メールアドレス</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="quantity">枚数</label>
+                    <input type="number" id="quantity" name="quantity" min="1" max="{{ concert.available_seats }}" required>
+                </div>
+                <button type="submit">予約する</button>
+            </form>
+        </div>
+    {% else %}
+        <div class="booking-form">
+            <h2>完売しました</h2>
+            <p>申し訳ありませんが、このコンサートは完売いたしました。</p>
+        </div>
+    {% endif %}
+
+    <div class="booking-history">
+        <h2>予約履歴</h2>
+        {% if tickets %}
+            <ul class="booking-list">
+                {% for ticket in tickets %}
+                    <li class="booking-item">
+                        <div class="booking-info">
+                            <span class="booking-name">{{ ticket.user_name }}</span>
+                            <span class="booking-date">{{ ticket.purchase_date.strftime('%Y年%m月%d日 %H:%M') }}</span>
+                        </div>
+                        <div class="booking-info">
+                            <span class="booking-quantity">{{ ticket.quantity }}枚</span>
+                            <span class="booking-price">¥{{ "{:,}".format(ticket.total_price) }}</span>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>まだ予約はありません。</p>
+        {% endif %}
+    </div>
+</body>
+</html> 
