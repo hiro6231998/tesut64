@@ -1,0 +1,139 @@
+.search-results-container {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-results-container h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.no-results {
+  text-align: center;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+}
+
+.no-results p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.results-count {
+  margin-bottom: 20px;
+  color: #555;
+  font-weight: 500;
+}
+
+.concert-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.concert-result-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.concert-result-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.concert-image {
+  height: 160px;
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+
+.concert-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+}
+
+.concert-info {
+  padding: 15px;
+}
+
+.concert-info h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.concert-date, .concert-venue {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.price-range {
+  margin: 8px 0;
+  font-weight: 500;
+  color: #0066cc;
+}
+
+.availability {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.availability.available {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.availability.sold-out {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.searching-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #0066cc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .concert-results {
+    grid-template-columns: 1fr;
+  }
+} 

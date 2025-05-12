@@ -1,0 +1,326 @@
+.reservation-confirmation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.confirmation-container {
+  background-color: white;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 30px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.confirmation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.confirmation-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.success-message {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #e8f5e9;
+  border-radius: 8px;
+}
+
+.success-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  margin: 0 auto 15px;
+}
+
+.success-message p {
+  margin: 5px 0;
+  color: #333;
+}
+
+.reservation-number {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.reservation-number h3 {
+  margin-bottom: 10px;
+  color: #555;
+  font-size: 1.2rem;
+}
+
+.reservation-number .number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #0066cc;
+  letter-spacing: 2px;
+}
+
+.qr-code {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.qr-code h3 {
+  margin-bottom: 10px;
+  color: #555;
+  font-size: 1.2rem;
+}
+
+.qr-code img {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  background-color: white;
+}
+
+.qr-code p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.confirmation-details {
+  margin-bottom: 30px;
+}
+
+.detail-section {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-section h3 {
+  margin-bottom: 15px;
+  color: #555;
+  font-size: 1.2rem;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.detail-row .label {
+  flex: 0 0 150px;
+  color: #666;
+  font-weight: 500;
+}
+
+.detail-row .value {
+  flex: 1;
+  color: #333;
+}
+
+.price-row {
+  margin-top: 15px;
+  font-size: 1.1rem;
+}
+
+.price {
+  font-weight: bold;
+  color: #0066cc;
+}
+
+.payment-instructions {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+}
+
+.payment-instructions h3 {
+  color: #555;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.payment-instructions p {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.payment-instructions ol {
+  padding-left: 20px;
+  margin-bottom: 15px;
+}
+
+.payment-instructions li {
+  margin-bottom: 8px;
+}
+
+.bank-details {
+  background-color: white;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border: 1px solid #eee;
+}
+
+.warning {
+  color: #e53935;
+  font-weight: 500;
+  margin-top: 15px;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.action-button {
+  flex: 1;
+  min-width: 150px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.action-button.print {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.action-button.print:hover {
+  background-color: #e0e0e0;
+}
+
+.action-button.download {
+  background-color: #0066cc;
+  color: white;
+}
+
+.action-button.download:hover {
+  background-color: #0055aa;
+}
+
+.action-button.resend {
+  background-color: #f0f0f0;
+  color: #555;
+}
+
+.action-button.resend:hover {
+  background-color: #e0e0e0;
+}
+
+.additional-info {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.additional-info h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #555;
+  font-size: 1.2rem;
+}
+
+.additional-info ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.additional-info li {
+  margin-bottom: 8px;
+  color: #555;
+}
+
+/* 印刷時のスタイル */
+@media print {
+  .reservation-confirmation {
+    position: static;
+    background: none;
+    padding: 0;
+    overflow: visible;
+  }
+  
+  .confirmation-container {
+    max-height: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  .close-button,
+  .action-buttons {
+    display: none;
+  }
+}
+
+.print-view .close-button,
+.print-view .action-buttons,
+.print-view .additional-info {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .confirmation-container {
+    padding: 20px 15px;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+  }
+  
+  .detail-row .label {
+    flex: 0 0 auto;
+    margin-bottom: 3px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-button {
+    width: 100%;
+  }
+} 
